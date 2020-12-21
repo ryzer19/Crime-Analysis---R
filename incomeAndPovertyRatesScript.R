@@ -37,9 +37,7 @@ incomeDFfiltered = subset(incomeDFfiltered, select = -Logical)
 
 #removes age group to have only values for clustering
 incomeDFforCluster = subset(incomeDFfiltered, select = -Age_Group) 
-
-
-
+incomeDFforCluster = subset(incomeDFforCluster, select = -meanEquivRealDisInc)
 
 #plotting values on geom point graph
 ggplot(incomeDFfiltered, aes(x = Year, y = Value, color = Age_Group)) +
@@ -63,3 +61,4 @@ income_cluster1 <- Mclust(incomeDFfiltered)
 plot(income_cluster1)
 summary(income_cluster1)
 
+str(northDublin)

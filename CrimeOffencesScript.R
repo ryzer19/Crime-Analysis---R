@@ -73,6 +73,9 @@ southDublin = data.frame(crimeOffences %>% filter(Garda_Station %in% c(
     "66202 Clondalkin, D.M.R. Western Division",
     "66201 Ballyfermot, D.M.R. Western Division"
     )))
+#STATISTICAL DATA
+summary(northDublin$Value) #gets min, median, mean & max of all crime values N.Dub
+boxplot(northDublin$Value)
 
 #gets total number of crimes between 2003-2019 North Dublin
 totalNorthValue <- aggregate(northDublin$Value, by=list(northDublin$Garda_Station), FUN=sum)
@@ -231,3 +234,4 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
 
                        write.xlsx(northDublin, file, sheetName = "Sheet1", 
                                   col.names = TRUE, row.names = TRUE, append = FALSE)
+                       
