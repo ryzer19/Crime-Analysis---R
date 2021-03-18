@@ -8,6 +8,7 @@ library(mclust)
 library(cluster)
 library(factoextra)
 library(writexl)
+library(ggplot2)
 
 #creates data frame from csv file
 incomeAndPovertyRates <- read.csv(file = '/Users/ryanjohnston/OneDrive - National College of Ireland/- YEAR 4 -/Project Info/Datasets/Income&PovertyRates.csv')
@@ -37,13 +38,16 @@ incomeDFfiltered = subset(incomeDFfiltered, select = -Logical)
 
 #removes age group to have only values for clustering
 incomeDFforCluster = subset(incomeDFfiltered, select = -Age_Group) 
-incomeDFforCluster = subset(incomeDFforCluster, select = -meanEquivRealDisInc)
 
 #plotting values on geom point graph
 ggplot(incomeDFfiltered, aes(x = Year, y = Value, color = Age_Group)) +
     geom_point() +
     ylim (15000, 30000) +
     xlim (2004, 2020)
+
+    #dataframe for avg crimes by year with income
+    
+
 
 
 #cluster
@@ -60,5 +64,3 @@ res.km <- eclust(incomeDFforCluster, "kmeans") #shows data plotted
 income_cluster1 <- Mclust(incomeDFfiltered)
 plot(income_cluster1)
 summary(income_cluster1)
-
-str(northDublin)
