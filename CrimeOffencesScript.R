@@ -17,8 +17,8 @@ library(ggplot2)
 library(scales)
 
 #loading datasets
-crimeOffences <- read.csv(file = '/Users/ryanjohnston/OneDrive - National College of Ireland/- YEAR 4 -/Project Info/Datasets/RecordedCrimeOffences.csv')
-locations <- read.csv(file = '/Users/ryanjohnston/OneDrive - National College of Ireland/- YEAR 4 -/Project Info/Datasets/Locations.csv')
+crimeOffences <- read.csv(file = '/Users/ryanjohnston/development/r/crime/Datasets/RecordedCrimeOffences.csv')
+locations <- read.csv(file = '/Users/ryanjohnston/development/r/crime/Datasets/Locations.csv')
 
 #changing column names
 names(crimeOffences)[3] <- "Garda_Station"

@@ -11,21 +11,17 @@ library(writexl)
 library(ggplot2)
 
 #creates data frame from csv file
-incomeAndPovertyRates <- read.csv(file = '/Users/ryanjohnston/OneDrive - National College of Ireland/- YEAR 4 -/Project Info/Datasets/Income&PovertyRates.csv')
+incomeAndPovertyRates <- read.csv(file = '/Users/ryanjohnston/development/r/crime/Datasets/Income&PovertyRates.csv')
 
 
 #changing dataframe column names
-names(incomeAndPovertyRates)[1] <- "Statistic_ID"
-names(incomeAndPovertyRates)[5] <- "Participants"
-names(incomeAndPovertyRates)[6] <- "Age_Range"
-names(incomeAndPovertyRates)[8] <- "Value"
-
-#TLIST column removed as it was identical to 'year' column
-incomeAndPovertyRates = subset(incomeAndPovertyRates, select = -TLIST.A1.) 
-
+names(incomeAndPovertyRates)[1] <- "Statistic"
+names(incomeAndPovertyRates)[3] <- "Age_Range"
+names(incomeAndPovertyRates)[4] <- "Unit"
+names(incomeAndPovertyRates)[5] <- "Value"
 
 #getting mean equivalised real disposable income from full dataframe
-incomeDF <- data.frame(ageGroup = c(incomeAndPovertyRates$Age_Range), year = c(incomeAndPovertyRates$Year),meanEquivRealDisInc = c(incomeAndPovertyRates$Statistic == "Mean Equivalised Real Disposable Income"),incomeAndPovertyRates$VALUE)
+incomeDF <- data.frame(ageGroup = c(incomeAndPovertyRates$Age_Range), year = c(incomeAndPovertyRates$Year),meanEquivRealDisInc = c(incomeAndPovertyRates$Statistic == "Mean Equivalised Real Disposable Income"),incomeAndPovertyRates$Value)
 #filtering data to new data frame based on the values that came up as TRUE
 incomeDFfiltered <- filter(incomeDF, meanEquivRealDisInc == "TRUE")
 #changing dataframe names
@@ -33,8 +29,8 @@ names(incomeDFfiltered)[1] <- "Age_Group"
 names(incomeDFfiltered)[2] <- "Year"
 names(incomeDFfiltered)[4] <- "Value"
 
-#removes logical column from data frame
-incomeDFfiltered = subset(incomeDFfiltered, select = -Logical) 
+#removes logical(containing TRUE) column from data frame
+incomeDFfiltered = subset(incomeDFfiltered, select = -meanEquivRealDisInc) 
 
 #removes age group to have only values for clustering
 incomeDFforCluster = subset(incomeDFfiltered, select = -Age_Group) 
@@ -45,9 +41,9 @@ ggplot(incomeDFfiltered, aes(x = Year, y = Value, color = Age_Group)) +
     ylim (15000, 30000) +
     xlim (2004, 2020)
 
-    #dataframe for avg crimes by year with income
-    
-
+    #dataframe creation for avg crimes by year
+      averageCrimesByYear <- aggregate(southDublin$Value, by=list(southDublin$Garda_Station), FUN=sum)
+      
 
 
 #cluster
