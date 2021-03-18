@@ -21,21 +21,30 @@ names(incomeAndPovertyRates)[4] <- "Unit"
 names(incomeAndPovertyRates)[5] <- "Value"
 
 #getting mean equivalised real disposable income from full dataframe
-incomeDF <- data.frame(ageGroup = c(incomeAndPovertyRates$Age_Range), year = c(incomeAndPovertyRates$Year),meanEquivRealDisInc = c(incomeAndPovertyRates$Statistic == "Mean Equivalised Real Disposable Income"),incomeAndPovertyRates$Value)
+incomeDF <- data.frame(ageGroup = c(incomeAndPovertyRates$Age_Range), year = c(incomeAndPovertyRates$Year),meanRealDispInc = c(incomeAndPovertyRates$Statistic == "Mean Real Household Disposable Income"),incomeAndPovertyRates$Value)
 #filtering data to new data frame based on the values that came up as TRUE
-incomeDFfiltered <- filter(incomeDF, meanEquivRealDisInc == "TRUE")
+incomeDFfiltered <- filter(incomeDF, meanRealDispInc == "TRUE")
+
+#removes logical(containing TRUE) column from data frame
+incomeDFfiltered = subset(incomeDFfiltered, select = -meanRealDispInc) 
+
 #changing dataframe names
 names(incomeDFfiltered)[1] <- "Age_Group"
 names(incomeDFfiltered)[2] <- "Year"
-names(incomeDFfiltered)[4] <- "Value"
-
-#removes logical(containing TRUE) column from data frame
-incomeDFfiltered = subset(incomeDFfiltered, select = -meanEquivRealDisInc) 
+names(incomeDFfiltered)[3] <- "Value"
 
 #removes age group to have only values for clustering
-incomeDFforCluster = subset(incomeDFfiltered, select = -Age_Group) 
+incomeDFforCluster = subset(incomeDFfiltered, select = -Age_Group)
 
-
+    #avg income by year - all ages(no age group)
+        #remove age group 0-17 as it contains NA's
+        avgIncome <- incomeDFfiltered[-c(1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46),]
+  
+        #gets mean of values by year for people 18+
+        avgIncome <- aggregate(avgIncome$Value, by=list(avgIncome$Year), FUN=mean)
+              names(avgIncome)[1] = "Year"
+                names(avgIncome)[2] = "Value"
+                
         #dataframe creation for avg crimes by year north & south
           averageCrimesByYearNorth <- aggregate(northDublin$Value, by=list(northDublin$Year), FUN=mean)
           averageCrimesByYearSouth <- aggregate(southDublin$Value, by=list(southDublin$Year), FUN=mean)
@@ -57,10 +66,22 @@ incomeDFforCluster = subset(incomeDFfiltered, select = -Age_Group)
                     #pastes year value as new column
                     avgCrimesByYear$Year <- paste(averageCrimesByYearBoth$Year)
                       names(avgCrimesByYear)[1] = "Value"
+
+                      
+                #adding income to avg crimes dataframe
+                      #both dataframes must start from 2004- (removing 2003 year of crime)
+                      avgCrimesByYear <- avgCrimesByYear[-c(1),]
                     
-                  #adding income to avg crimes dataframe
-                  
-                    
+                       #changing 'year' in avgCrimesByYear(char) to numeric for join
+                             avgCrimesByYear$Year = as.numeric(as.character(avgCrimesByYear$Year))
+                              
+                            #joining df's
+                              avgCrimesWithIncome <- left_join(avgCrimesByYear, avgIncome, 
+                                                                 by = c("Year" = "Year"))
+                                       names(avgCrimesWithIncome)[1] = "CrimeValue"
+                                       names(avgCrimesWithIncome)[3] = "IncomeValue"
+                              
+            
               
 
 #cluster
@@ -85,7 +106,8 @@ summary(income_cluster1)
             ylim (15000, 30000) +
             xlim (2004, 2020)
           
-          ggplot(avgCrimesByYear, aes(x = Year, y = Value, color = Age_Group)) +
+          #AVG CRIMES, AVG INCOME, YEAR
+          ggplot(avgCrimesWithIncome, aes(x = Year, y = CrimeValue, size = IncomeValue)) +
             geom_point() +
-            ylim (15000, 30000) +
+            ylab("Average Crimes")
             xlim (2004, 2020)
