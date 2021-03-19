@@ -1,6 +1,8 @@
 install.packages("animation")	
 install.packages("mclust")
 install.packages("factoextra")
+install.packages("ggthemes")
+
 
 library(dplyr)
 library(animation)
@@ -9,6 +11,7 @@ library(cluster)
 library(factoextra)
 library(writexl)
 library(ggplot2)
+library(ggthemes)
 
 #creates data frame from csv file
 incomeAndPovertyRates <- read.csv(file = '/Users/ryanjohnston/development/r/crime/Datasets/Income&PovertyRates.csv')
@@ -102,12 +105,31 @@ summary(income_cluster1)
                 #VISUALISATIONS#
           #AGE GROUP INCOME BY YEAR
           ggplot(incomeDFfiltered, aes(x = Year, y = Value, color = Age_Group)) +
-            geom_point() +
-            ylim (15000, 30000) +
-            xlim (2004, 2020)
+            geom_line(size=1) + geom_point(size=2) +
+            labs(title = "Age Group Income",
+              subtitle = "       by Year",
+              xlab = "Year",
+              ylab = "Income",
+              color = "Age"
+            ) +
+            xlim (2004, 2020) +
+            ylim (20000, 60000) +
+            theme_fivethirtyeight() +
+            theme(axis.title = element_text())
+          
+
           
           #AVG CRIMES, AVG INCOME, YEAR
           ggplot(avgCrimesWithIncome, aes(x = Year, y = CrimeValue, size = IncomeValue)) +
             geom_point() +
-            ylab("Average Crimes")
-            xlim (2004, 2020)
+            labs( title = "Average Crimes by Year",
+                  subtitle = "        with Average Income",
+              x = "Crimes",  
+              y = "Year",
+              size = "Income"
+            )+
+            xlim (2004, 2020) +
+            ylim (170, 242) +
+            theme_fivethirtyeight() +
+            theme(axis.title = element_text())
+            
