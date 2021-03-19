@@ -184,6 +184,7 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                       "red" #red shows "unsafe"
                     } })
                 }
+                
             
                   #code to show the map & markers on it using the Leaflet library
                        leaflet()%>%addTiles()%>%addAwesomeMarkers(
@@ -194,6 +195,7 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                          label =  locations$Location, #adds locations to each label when hovered over the icon
                          popup = ~as.character(Total)) #displays oopup of value of crimes in that area when icon pressed
                 
+                         
                   #mean total of north & south each location
                        averageCrimesAllTimeNorth <- aggregate(Value~Garda_Station,northDublin,mean) #aggregation table of the mean values in North Dublin
                        averageCrimesAllTimeSouth <- aggregate(Value~Garda_Station,southDublin,mean) #aggregation table of the mean values in South Dublin
@@ -222,7 +224,7 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                                col = c("#3CA0D0")
                              )
                       
-                      ###########barplot 5 year top 5 north vs south
+                      #barplot 5 year top 5 north vs south
                        #finglas, blanch, store st, bridewell, coolock
                        #tallaght, dundrum, dun laoighre, pearse st, kevin st
                        top5 <- c("Finglas/Tallaght","Blanch/Dundrum","Store St/Pearse St","Bridewell/Kevin St", "Coolock/Dun Laoighre")
@@ -231,3 +233,6 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
 
                        write.xlsx(northDublin, file, sheetName = "Sheet1", 
                                   col.names = TRUE, row.names = TRUE, append = FALSE)
+                       
+                    
+                         
