@@ -1,3 +1,6 @@
+library(ggthemes)
+
+
 #importing dataset
 levelOfEducation <- read.csv(file = '/Users/ryanjohnston/OneDrive - National College of Ireland/-YEAR4-/Project Info/Datasets/LevelOfEducation.csv')
 
@@ -27,5 +30,5 @@ levelOfEducation <- levelOfEducation[!(levelOfEducation$Quarter=="2020Q2"),]
                  x = "Quarter",  
                  y = "Value"
                  ) +
-            theme_dark()
-         
+           theme_fivethirtyeight() +
+           theme(axis.title = element_text())
