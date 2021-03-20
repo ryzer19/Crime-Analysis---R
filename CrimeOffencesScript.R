@@ -15,6 +15,7 @@ library(leaflet)
 library(writexl)
 library(ggplot2)
 library(scales)
+library(ggthemes)
 
 #loading datasets
 crimeOffences <- read.csv(file = '/Users/ryanjohnston/development/r/crime/Datasets/RecordedCrimeOffences.csv')
@@ -234,5 +235,12 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                        write.xlsx(northDublin, file, sheetName = "Sheet1", 
                                   col.names = TRUE, row.names = TRUE, append = FALSE)
                        
-                    
-                         
+                       #average crimes by year 2009-2019 -  FOR EDUCATION COMPARISON
+                       ggplot(avgCrimesByYear, aes(x = factor(Year), y = Value)) +
+                         geom_point() +
+                         labs( title = "Average Crimes by Year",
+                               x = "Crimes",  
+                               y = "Year"
+                         )+
+                         theme_fivethirtyeight() +
+                         theme(axis.title = element_text())
