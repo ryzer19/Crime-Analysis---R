@@ -1,4 +1,5 @@
 library(ggthemes)
+library(ggplot2)
 
 
 #importing dataset
@@ -22,13 +23,13 @@ levelOfEducation <- levelOfEducation[!(levelOfEducation$Quarter=="2020Q2"),]
                 names(educationTypeAvg)[2] = "Quarter"
                 names(educationTypeAvg)[3] = "Value"
                 
-            #PLOT SHOWING AVG EDUCATION & TYPE - BY YEAR - PCH makes stroke
-         ggplot(educationTypeAvg, aes(x = Quarter, y = Value)) +
-           geom_point(aes(fill = Education_Level),pch=21,size=3,colour="black")+
-           labs( title = "Average Level of Education",
-                 subtitle = "by Year",
-                 x = "Quarter",  
-                 y = "Value"
-                 ) +
-           theme_fivethirtyeight() +
-           theme(axis.title = element_text())
+              #PLOT SHOWING AVG EDUCATION & TYPE - BY YEAR - PCH makes stroke
+           ggplot(educationTypeAvg, aes(x = Quarter, y = Value)) +
+             geom_point(aes(fill = Education_Level),pch=21,size=3,colour="black")+
+             labs( title = "Average Level of Education",
+                   subtitle = "by Year",
+                   x = "Quarter",  
+                   y = "Value"
+                   ) +
+             theme_fivethirtyeight() +
+             theme(axis.title = element_text())
