@@ -16,6 +16,7 @@ library(writexl)
 library(ggplot2)
 library(scales)
 library(ggthemes)
+library(shiny)
 
 #loading datasets
 crimeOffences <- read.csv(file = '/Users/ryanjohnston/development/r/crime/Datasets/RecordedCrimeOffences.csv')
@@ -200,7 +201,15 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                   #mean total of north & south each location
                        averageCrimesAllTimeNorth <- aggregate(Value~Garda_Station,northDublin,mean) #aggregation table of the mean values in North Dublin
                        averageCrimesAllTimeSouth <- aggregate(Value~Garda_Station,southDublin,mean) #aggregation table of the mean values in South Dublin
-    
+                       
+                       
+                                  #making yearly dataset for map animation
+                                  north2003_2019 <- aggregate(Value~Garda_Station+Year,northDublin,sum) #aggregation of total crimes by gardastation & year (north)
+                                  south2003_2019 <- aggregate(Value~Garda_Station+Year,southDublin,sum) #aggregation of total crimes by gardastation & year (south)
+                          
+                                  
+                                
+                                        
   #-----------BARPLOT
                    #mean of all north vs all south together
                        crimesNorth <- mean(averageCrimesAllTimeNorth$Value)
