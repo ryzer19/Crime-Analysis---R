@@ -192,14 +192,14 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                 
             
                   #code to show the map & markers on it using the Leaflet library
-                       leaflet()%>%addTiles()%>%addAwesomeMarkers(
+                       allTimeMap <- leaflet()%>%addTiles()%>%addAwesomeMarkers(
                          data = locations, #locations dataframe used
                          lat = ~Latitude, #latitude coordinate taken from Latitude column in data frame
                          lng = ~Longitude, #longitude coordinate taken from Longitude column in data frame
                          icon=icons, #sets the icon style
                          label =  locations$Location, #adds locations to each label when hovered over the icon
-                         popup = ~as.character(Total)) #displays oopup of value of crimes in that area when icon pressed
-                
+                         popup = ~as.character(Total)) #displays popup of value of crimes in that area when icon pressed
+###---------------------------------------------------------------               
                          
                        #adding garda station name to Total.40 df for join
                           #making df for paste
@@ -217,35 +217,45 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                            locations_paste <- data_frame(locations_paste)
                               names(locations_paste)[1] <- "Garda_Station" #changes column name
                           Total.40$Garda_Station <- paste(locations_paste$Garda_Station) # pastes values above in beside corresponding location
-                           
+                          
+
                   #mean total of north & south each location
                        averageCrimesAllTimeNorth <- aggregate(Value~Garda_Station,northDublin,mean) #aggregation table of the mean values in North Dublin
                        averageCrimesAllTimeSouth <- aggregate(Value~Garda_Station,southDublin,mean) #aggregation table of the mean values in South Dublin
-                       
-                       
-                       
-                       
                        
                        
                                   #making yearly dataset for map animation
                                   north2003_2019 <- aggregate(Value~Garda_Station+Year,northDublin,sum) #aggregation of total crimes by gardastation & year (north)
                                   south2003_2019 <- aggregate(Value~Garda_Station+Year,southDublin,sum) #aggregation of total crimes by gardastation & year (south)
                                   
+                                  #join locations(long&lat) to yearly data frame - NORTH
+                                  north_location_2003_2019 <- left_join(north2003_2019, Total.40, 
+                                                         by = c("Garda_Station" = "Garda_Station"))
+                                        north_location_2003_2019 <- select(north_location_2003_2019, -7) #deleting total column
+                                  
+                                  
+                                  #join locations(long&lat) to yearly data frame - SOUTH
+                                  south_location_2003_2019 <- left_join(south2003_2019, Total.40, 
+                                                                        by = c("Garda_Station" = "Garda_Station"))
+                                        south_location_2003_2019 <- select(south_location_2003_2019, -7) #deleting total column
+                                  
+                                  
+                                  #shiny map
                                 ui <- dashboardPage(
                                   skin = "red",
                                   dashboardHeader(title = "Crime Dashboard"),
                                   dashboardSidebar(
                                     sliderInput("Year_Range", label = "Year Range",
-                                                min = min(north2003_2019$Year),
-                                                max = max(north2003_2019$Year),
-                                                value = c(min(north2003_2019$Year, max(north2003_2019$Year))),
+                                                min = min(north_location_2003_2019$Year),
+                                                max = max(north_location_2003_2019$Year),
+                                                value = c(min(north_location_2003_2019$Year, max(north_location_2003_2019$Year))),
                                                 sep = "", #if this wasn't here year 2003 would be 20,03
                                                 step = 1
                                                 )
                                   ),
                                   dashboardBody(
-                                    fluidRow(box(width = 12, leafletOutput(outputId = "north_map"))),
-                                    fluidRow(box(width = 12, dataTableOutput(outputId = "summary_table")))
+                                    fluidRow(box(width = 12, leafletOutput("north_map"))),
+                                    fluidRow(box(width = 12, dataTableOutput("summary_table")))
                                   )
                                 )
                                 server <- function(input, output) {
@@ -253,23 +263,33 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                                     north2003_2019 %>%
                                       filter(Year >= input$Year_Range[1]) %>%
                                       filter(Year <= input$Year_Range[2]) %>%
-                                      group_by(Garda_Station) %>%
-                                      summarize(Value = n())
+                                      group_by(Garda_Station)
                                   })
-                                  
+
                                   data_input_ordered <- reactive({
-                                    data_input()[order(match(data_input()$Garda_Station))]
+                                    data_input()[order(match(data_input()$Location, north_location_2003_2019$Location)),]
                                   })
-                                  
+
                                   labels <- reactive({
-                                    paste("<p>", data_input_ordered()$Garda_Station, "</p>",
+                                    paste("<p>", data_input_ordered()$Value, digits = 3, "</p>"
                                       )
                                   })
-                                  
-                                  output$north_map <- renderLeaflet()
-                                              
+
+                                  output$north_map <- renderLeaflet({
+                                    leaflet()%>%addTiles()%>%addAwesomeMarkers(
+                                      data = north_location_2003_2019, #locations data frame used
+                                      lat = ~Latitude, #latitude coordinate taken from Latitude column in data frame
+                                      lng = ~Longitude, #longitude coordinate taken from Longitude column in data frame
+                                      icon=icons, #sets the icon style
+                                      label =  north_location_2003_2019$Location, #adds locations to each label when hovered over the icon
+                                      popup = ~as.character(Value)) #displays popup of value of crimes in that area when icon pressed
+                                  })
+
+                                  output$summary_table <- renderDataTable(data_input())
                                 }
-                                        
+
+                          shinyApp(ui = ui, server = server)
+                                
   #-----------BARPLOT
                    #mean of all north vs all south together
                        crimesNorth <- mean(averageCrimesAllTimeNorth$Value)
