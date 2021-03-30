@@ -17,6 +17,9 @@ library(ggplot2)
 library(scales)
 library(ggthemes)
 library(shiny)
+library(shinydashboard)
+library(RColorBrewer)
+library(data.table)
 
 #loading datasets
 crimeOffences <- read.csv(file = '/Users/ryanjohnston/development/r/crime/Datasets/RecordedCrimeOffences.csv')
@@ -198,17 +201,74 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                          popup = ~as.character(Total)) #displays oopup of value of crimes in that area when icon pressed
                 
                          
+                       #adding garda station name to Total.40 df for join
+                          #making df for paste
+                           locations_paste <-  c("62101 Bridewell Dublin, D.M.R. North Central Division","62202 Fitzgibbon Street, D.M.R. North Central Division",
+                                                "62203 Mountjoy, D.M.R. North Central Division","62301 Store Street, D.M.R. North Central Division", "63101 Balbriggan, D.M.R. Northern Division",
+                                                "63102 Garristown, D.M.R. Northern Division", "63103 Lusk, D.M.R. Northern Division", "63105 Skerries, D.M.R. Northern Division", 
+                                                "63201 Ballymun, D.M.R. Northern Division", "63202 Dublin Airport, D.M.R. Northern Division", "63203 Santry, D.M.R. Northern Division", 
+                                                "63301 Coolock, D.M.R. Northern Division", "63302 Malahide, D.M.R. Northern Division", "63303 Swords, D.M.R. Northern Division", "63401 Clontarf, D.M.R. Northern Division", 
+                                                "63402 Howth, D.M.R. Northern Division", "63403 Raheny, D.M.R. Northern Division", "66101 Blanchardstown, D.M.R. Western Division", "66102 Cabra, D.M.R. Western Division", 
+                                                "66103 Finglas, D.M.R. Western Division", "65203 Dun Laoghaire, D.M.R. Eastern Division", "65201 Cabinteely, D.M.R. Eastern Division", "65102 Dundrum, D.M.R. Eastern Division", 
+                                                "65101 Blackrock, Co Dublin, D.M.R. Eastern Division", "64302 Terenure, D.M.R. Southern Division", "64301 Rathmines, D.M.R. Southern Division", "64202 Tallaght, D.M.R. Southern Division", 
+                                                "64201 Rathfarnham, D.M.R. Southern Division", "64102 Sundrive Road, D.M.R. Southern Division", "64101 Crumlin, D.M.R. Southern Division", "61302 Kilmainham, D.M.R. South Central Division",
+                                                "61301 Kevin Street, D.M.R. South Central Division", "61202 Pearse Street, D.M.R. South Central Division", "61101 Donnybrook, D.M.R. South Central Division", "61102 Irishtown, D.M.R. South Central Division", 
+                                                "66301 Lucan, D.M.R. Western Division", "66302 Ronanstown, D.M.R. Western Division", "66203 Rathcoole, D.M.R. Western Division", "66202 Clondalkin, D.M.R. Western Division", "66201 Ballyfermot, D.M.R. Western Division")
+                           locations_paste <- data_frame(locations_paste)
+                              names(locations_paste)[1] <- "Garda_Station" #changes column name
+                          Total.40$Garda_Station <- paste(locations_paste$Garda_Station) # pastes values above in beside corresponding location
+                           
                   #mean total of north & south each location
                        averageCrimesAllTimeNorth <- aggregate(Value~Garda_Station,northDublin,mean) #aggregation table of the mean values in North Dublin
                        averageCrimesAllTimeSouth <- aggregate(Value~Garda_Station,southDublin,mean) #aggregation table of the mean values in South Dublin
                        
                        
+                       
+                       
+                       
+                       
                                   #making yearly dataset for map animation
                                   north2003_2019 <- aggregate(Value~Garda_Station+Year,northDublin,sum) #aggregation of total crimes by gardastation & year (north)
                                   south2003_2019 <- aggregate(Value~Garda_Station+Year,southDublin,sum) #aggregation of total crimes by gardastation & year (south)
-                          
                                   
-                                
+                                ui <- dashboardPage(
+                                  skin = "red",
+                                  dashboardHeader(title = "Crime Dashboard"),
+                                  dashboardSidebar(
+                                    sliderInput("Year_Range", label = "Year Range",
+                                                min = min(north2003_2019$Year),
+                                                max = max(north2003_2019$Year),
+                                                value = c(min(north2003_2019$Year, max(north2003_2019$Year))),
+                                                sep = "", #if this wasn't here year 2003 would be 20,03
+                                                step = 1
+                                                )
+                                  ),
+                                  dashboardBody(
+                                    fluidRow(box(width = 12, leafletOutput(outputId = "north_map"))),
+                                    fluidRow(box(width = 12, dataTableOutput(outputId = "summary_table")))
+                                  )
+                                )
+                                server <- function(input, output) {
+                                  data_input <- reactive({
+                                    north2003_2019 %>%
+                                      filter(Year >= input$Year_Range[1]) %>%
+                                      filter(Year <= input$Year_Range[2]) %>%
+                                      group_by(Garda_Station) %>%
+                                      summarize(Value = n())
+                                  })
+                                  
+                                  data_input_ordered <- reactive({
+                                    data_input()[order(match(data_input()$Garda_Station))]
+                                  })
+                                  
+                                  labels <- reactive({
+                                    paste("<p>", data_input_ordered()$Garda_Station, "</p>",
+                                      )
+                                  })
+                                  
+                                  output$north_map <- renderLeaflet()
+                                              
+                                }
                                         
   #-----------BARPLOT
                    #mean of all north vs all south together
