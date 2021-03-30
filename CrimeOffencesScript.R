@@ -260,7 +260,7 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                                 )
                                 server <- function(input, output) {
                                   data_input <- reactive({
-                                    north2003_2019 %>%
+                                    north_location_2003_2019 %>%
                                       filter(Year >= input$Year_Range[1]) %>%
                                       filter(Year <= input$Year_Range[2]) %>%
                                       group_by(Garda_Station)
@@ -271,7 +271,7 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                                   })
 
                                   labels <- reactive({
-                                    paste("<p>", data_input_ordered()$Value, digits = 3, "</p>"
+                                    paste("<p>", data_input_ordered()$Value, "</p>"
                                       )
                                   })
 
