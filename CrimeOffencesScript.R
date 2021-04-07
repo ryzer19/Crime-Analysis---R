@@ -199,7 +199,8 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                          icon=icons, #sets the icon style
                          label =  locations$Location, #adds locations to each label when hovered over the icon
                          popup = ~as.character(Total)) #displays popup of value of crimes in that area when icon pressed
-###---------------------------------------------------------------               
+
+                       ###---------------------------------------------------------------               
                          
                        #adding garda station name to Total.40 df for join
                           #making df for paste
@@ -242,12 +243,12 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                                   
                                   #shiny map
                                 ui <- dashboardPage(
-                                  skin = "red",
+                                  skin = "red", #background colour
                                   dashboardHeader(title = "Crime Dashboard"),
-                                  dashboardSidebar(
-                                    sliderInput("Year_Range", label = "Year Range",
-                                                min = min(north_location_2003_2019$Year),
-                                                max = max(north_location_2003_2019$Year),
+                                  dashboardSidebar( #sidebar formation for slider bar
+                                    sliderInput("Year_Range", label = "Year Range", #slider bar
+                                                min = min(north_location_2003_2019$Year), #gets min year from 'year' column
+                                                max = max(north_location_2003_2019$Year), #gets max year from 'year' column
                                                 value = c(min(north_location_2003_2019$Year, max(north_location_2003_2019$Year))),
                                                 sep = "", #if this wasn't here year 2003 would be 20,03
                                                 step = 1
@@ -262,33 +263,34 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                                   data_input <- reactive({
                                     north_location_2003_2019 %>%
                                       filter(Year >= input$Year_Range[1]) %>%
-                                      filter(Year <= input$Year_Range[2]) %>%
                                       group_by(Garda_Station)
                                   })
 
                                   data_input_ordered <- reactive({
-                                    data_input()[order(match(data_input()$Location, north_location_2003_2019$Location)),]
+                                    data_input()[order(match(data_input()$Location, data_input()$Year, north_location_2003_2019$Value)),]
                                   })
 
                                   labels <- reactive({
-                                    paste("<p>", data_input_ordered()$Value, "</p>"
+                                    paste("<p>", data_input_ordered()$Location, "</p>",
+                                          sep = ""
                                       )
+                                    
                                   })
 
-                                  output$north_map <- renderLeaflet({
+                                  output$north_map <- renderLeaflet(
                                     leaflet()%>%addTiles()%>%addAwesomeMarkers(
                                       data = north_location_2003_2019, #locations data frame used
                                       lat = ~Latitude, #latitude coordinate taken from Latitude column in data frame
                                       lng = ~Longitude, #longitude coordinate taken from Longitude column in data frame
                                       icon=icons, #sets the icon style
-                                      label =  north_location_2003_2019$Location, #adds locations to each label when hovered over the icon
-                                      popup = ~as.character(Value)) #displays popup of value of crimes in that area when icon pressed
-                                  })
+                                      label =  lapply(labels(), HTML), #adds locations to each label when hovered over the icon
+                                      popup = ~as.character(data_input()$Value)) #displays pop-up of value of crimes in that area when icon pressed
+                                  )
 
                                   output$summary_table <- renderDataTable(data_input())
                                 }
 
-                          shinyApp(ui = ui, server = server)
+                          shinyApp(ui = ui, server = server) #runs the shiny app, showing the dashboard & map
                                 
   #-----------BARPLOT
                    #mean of all north vs all south together
