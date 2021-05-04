@@ -12,6 +12,7 @@ library(factoextra)
 library(writexl)
 library(ggplot2)
 library(ggthemes)
+library(data.table)
 
 #creates data frame from csv file
 incomeAndPovertyRates <- read.csv(file = '/Users/ryanjohnston/development/r/crime/Datasets/Income&PovertyRates.csv')
@@ -39,6 +40,7 @@ names(incomeDFfiltered)[3] <- "Value"
 
 #removes age group to have only values for clustering
 incomeDFforCluster = subset(incomeDFfiltered, select = -Age_Group)
+incomeDFforCluster <- mean()
 
     #avg income by year - all ages(no age group)
         #remove age group 0-17 as it contains NA's
@@ -86,20 +88,29 @@ incomeDFforCluster = subset(incomeDFfiltered, select = -Age_Group)
                                        names(avgCrimesWithIncome)[3] = "IncomeValue"
                               
             
-              
+#writing to csv, then reading back in to have labels for cluster, col 1 = labels             
+write.csv(avgIncome,"/Users/ryanjohnston/development/r/crime/Datasets/avgIncome_cluster.csv", row.names = FALSE)
+avgIncome_cluster <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/avgIncome_cluster.csv", header = TRUE, row.names = 1, sep = ",")
+
+#pasting Year values in to avgIncome_cluster
+avgIncome_cluster$Year <- paste(avgIncome$Year)
+#reordering columns
+avgIncome_cluster <- avgIncome_cluster[, c(2,1)]
+#changing the pasted Year(char) to Year(num) for cluster
+avgIncome_cluster$Year <- as.numeric(avgIncome_cluster$Year)
+
 
 #cluster
 set.seed(1234)
 
-kmeans.ani(incomeDFfiltered[2:3], 3)
+kmeans.ani(avgIncome_cluster[1:2], 2)
 
 #creates 3 clusters from data
-km.clus <- kmeans(incomeDFforCluster, 3)
-fviz_cluster(km.clus, incomeDFforCluster) #outputs visualisation of 3 clusters
-res.km <- eclust(incomeDFforCluster, "kmeans") #shows data plotted
+km.clus <- kmeans(avgIncome_cluster, 3) #creates cluster with 3 clusters(groups)
+fviz_cluster(km.clus, avgIncome_cluster, main="Average Income Cluster")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
 
 #clustering
-income_cluster1 <- Mclust(incomeDFfiltered)
+income_cluster1 <- Mclust(avgIncome_cluster)
 plot(income_cluster1)
 summary(income_cluster1)
 
@@ -129,7 +140,6 @@ summary(income_cluster1)
             scale_y_continuous(breaks=seq(35000,50000,2000))+
             theme_fivethirtyeight() +
             theme(axis.title = element_text())
-
           
           #AVG CRIMES, AVG INCOME, YEAR
           ggplot(avgCrimesWithIncome, aes(x = Year, y = CrimeValue, size = IncomeValue)) +
