@@ -142,15 +142,17 @@ summary(income_cluster1)
             theme(axis.title = element_text())
           
           #AVG CRIMES, AVG INCOME, YEAR
-          ggplot(avgCrimesWithIncome, aes(x = Year, y = CrimeValue, size = IncomeValue)) +
-            geom_point() +
-            labs( title = "Average Crimes by Year",
-                  subtitle = "        with Average Income",
-              x = "Crimes",  
-              y = "Year",
-              size = "Income"
+         incomeCrimePlot <- ggplot(avgCrimesWithIncome, aes(x = Year, y = IncomeValue, color = CrimeValue, palette = )) +
+            geom_line(size=1.5, color=1) + geom_point(size = 10)+
+            labs( title = "Average Income by Year",
+                  subtitle = "        with Average Crimes",
+              x = "Year",  
+              y = "Crimes"
             )+
-            xlim (2004, 2020) +
-            ylim (170, 242) +
+            scale_x_continuous(breaks=seq(2004, 2020,2))+
+            scale_y_continuous(breaks=seq(35000, 50000,2500))+
             theme_fivethirtyeight() +
             theme(axis.title = element_text())
+          
+          incomeCrimePlot+scale_color_gradient(low="blue", high="yellow")
+          
