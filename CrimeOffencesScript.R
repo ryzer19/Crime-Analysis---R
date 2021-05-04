@@ -312,7 +312,20 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
 
                           shinyApp(ui = ui, server = server) #runs the shiny app, showing the dashboard & map
                           
-  #-----------BARPLOT
+                    #clusters
+                          #writing to csv, then reading back in to have labels for cluster, col 1 = labels             
+                          write.csv(averageCrimesAllTimeNorth, "/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", row.names = FALSE)
+                          averageNorthAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", header = TRUE, row.names = 1, sep = ",")
+                          
+                          set.seed(1234)
+                          
+                          kmeans.ani(averageNorthAllTime[1:2], 2)
+                          
+                          #creates 3 clusters from data
+                          km.clus <- kmeans(averageNorthAllTime, 3) #creates cluster with 3 clusters(groups)
+                          fviz_cluster(km.clus, averageNorthAllTime, main="North Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
+                          
+             #-----------BARPLOT
                    #mean of all north vs all south together
                        crimesNorth <- mean(averageCrimesAllTimeNorth$Value)
                        crimesSouth <- mean(averageCrimesAllTimeSouth$Value)
@@ -328,7 +341,7 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                                main = "North Dublin Total Crimes 2003-2019", 
                                names.arg = northLabels,
                                las = 2, 
-                               cex.lab = 1, 
+                               cex.lab = 1,
                                cex.axis = 0.5, 
                                cex.names = 0.6, 
                                font.axis = 2,
