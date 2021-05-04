@@ -23,13 +23,14 @@ names(incomeAndPovertyRates)[3] <- "Age_Range"
 names(incomeAndPovertyRates)[4] <- "Unit"
 names(incomeAndPovertyRates)[5] <- "Value"
 
-#getting mean equivalised real disposable income from full dataframe
+#getting mean real real disposable income from full data frame
 incomeDF <- data.frame(ageGroup = c(incomeAndPovertyRates$Age_Range), year = c(incomeAndPovertyRates$Year),meanRealDispInc = c(incomeAndPovertyRates$Statistic == "Mean Real Household Disposable Income"),incomeAndPovertyRates$Value)
+
 #filtering data to new data frame based on the values that came up as TRUE
 incomeDFfiltered <- filter(incomeDF, meanRealDispInc == "TRUE")
 
 #removes logical(containing TRUE) column from data frame
-incomeDFfiltered = subset(incomeDFfiltered, select = -meanRealDispInc) 
+incomeDFfiltered = subset(incomeDFfiltered, select = -meanRealDispInc)
 
 #changing dataframe names
 names(incomeDFfiltered)[1] <- "Age_Group"
@@ -117,6 +118,17 @@ summary(income_cluster1)
             theme_fivethirtyeight() +
             theme(axis.title = element_text())
           
+          #average income plot
+          ggplot(avgIncome, aes(x = Year, y = Value)) +
+            geom_line(size=0.5, color=1)+ geom_point(size=2.5,color=4)+
+            labs( title = "Average income by Year",
+                  x = "Year",  
+                  y = "Income"
+            )+
+            scale_x_continuous(breaks=seq(2004,2020,2))+
+            scale_y_continuous(breaks=seq(35000,50000,2000))+
+            theme_fivethirtyeight() +
+            theme(axis.title = element_text())
 
           
           #AVG CRIMES, AVG INCOME, YEAR
@@ -132,4 +144,3 @@ summary(income_cluster1)
             ylim (170, 242) +
             theme_fivethirtyeight() +
             theme(axis.title = element_text())
-            
