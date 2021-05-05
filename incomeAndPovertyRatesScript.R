@@ -153,6 +153,6 @@ summary(income_cluster1)
             scale_y_continuous(breaks=seq(35000, 50000,2500))+
             theme_fivethirtyeight() +
             theme(axis.title = element_text())
-          
+         
+          #plotting crime with scale gradient for crime value
           incomeCrimePlot+scale_color_gradient(low="blue", high="yellow")
-          
