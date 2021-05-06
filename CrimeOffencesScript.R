@@ -416,3 +416,15 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                          theme(axis.title = element_text())
                        
               #data analysis tests
+                       #creating linear model
+                       fullmodel_northDublin_incomeAndCrime <- lm(Income ~ Crime.1 + Crime.2 + Crime.3 + Crime.4 + Crime.5 + Crime.6 + Crime.7 + Crime.8 + Crime.9 + Crime.10 + Crime.11 + Crime.12 ,data=crimeOffences_northDublin_reformatted)
+                       #summary to check significance for correllation
+                       summary(fullmodel_northDublin_incomeAndCrime)
+                       plot(fullmodel_northDublin_incomeAndCrime)
+                       
+                       #creating linear model for columns with '*' - suggest level of statistical significance with regression coefficient
+                       halfmodel_northDublin_incomeAndCrime <- lm(Income ~ Crime.1 + Crime.2 + Crime.4 + Crime.5 + Crime.10, data = crimeOffences_northDublin_reformatted )
+                       summary(halfmodel_northDublin_incomeAndCrime)
+                       plot(halfmodel_northDublin_incomeAndCrime)
+                       
+                     
