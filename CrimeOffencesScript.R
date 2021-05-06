@@ -41,9 +41,15 @@ criteria_crime_north_dublin <- c("62101 Bridewell Dublin, D.M.R. North Central D
 
 #creating crime dataset for data analysis tests
 crimeOffences_northDublin <- crimeOffences[crimeOffences$Garda_Station %in% criteria_crime_north_dublin, ]
+#exporting to be reformatted in excel & have income added
 write.csv(crimeOffences_northDublin, "/Users/ryanjohnston/development/r/crime/Datasets/crimeOffences_northDublin.csv", row.names = FALSE)
+#reading in excel file that was reformatted
 crimeOffences_northDublin_reformatted <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/crimeOffences_northDublin_reformatted.csv")
 
+#removing columns with no income on new reformatted dataset (2003)
+crimeOffences_northDublin_reformatted <- crimeOffences_northDublin_reformatted[-c(1:20),]
+#removing columns which were redundant and created after importing (blank columns)
+crimeOffences_northDublin_reformatted <- crimeOffences_northDublin_reformatted[ , -c(16:20)]
 
 #filtering relevant columns, focusing on particular areas - North Dublin Areas
 northDublin = data.frame(crimeOffences %>% filter(Garda_Station %in% c(
@@ -408,3 +414,5 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                          )+
                          theme_fivethirtyeight() +
                          theme(axis.title = element_text())
+                       
+              #data analysis tests
