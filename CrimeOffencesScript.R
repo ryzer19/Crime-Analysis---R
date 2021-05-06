@@ -31,6 +31,20 @@ names(crimeOffences)[4] <- "Type_Of_Offence"
 names(crimeOffences)[5] <- "Unit"
 names(crimeOffences)[6] <- "Value"
 
+criteria_crime_north_dublin <- c("62101 Bridewell Dublin, D.M.R. North Central Division", "62202 Fitzgibbon Street, D.M.R. North Central Division",
+                                 "62203 Mountjoy, D.M.R. North Central Division","62301 Store Street, D.M.R. North Central Division","63101 Balbriggan, D.M.R. Northern Division",
+                                 "63102 Garristown, D.M.R. Northern Division","63103 Lusk, D.M.R. Northern Division","63105 Skerries, D.M.R. Northern Division",
+                                 "63201 Ballymun, D.M.R. Northern Division","63202 Dublin Airport, D.M.R. Northern Division","63203 Santry, D.M.R. Northern Division",
+                                 "63301 Coolock, D.M.R. Northern Division","63302 Malahide, D.M.R. Northern Division","63303 Swords, D.M.R. Northern Division",
+                                 "63401 Clontarf, D.M.R. Northern Division","63402 Howth, D.M.R. Northern Division","63403 Raheny, D.M.R. Northern Division",
+                                 "66101 Blanchardstown, D.M.R. Western Division","66102 Cabra, D.M.R. Western Division","66103 Finglas, D.M.R. Western Division")
+
+#creating crime dataset for data analysis tests
+crimeOffences_northDublin <- crimeOffences[crimeOffences$Garda_Station %in% criteria_crime_north_dublin, ]
+write.csv(crimeOffences_northDublin, "/Users/ryanjohnston/development/r/crime/Datasets/crimeOffences_northDublin.csv", row.names = FALSE)
+crimeOffences_northDublin_reformatted <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/crimeOffences_northDublin_reformatted.csv")
+
+
 #filtering relevant columns, focusing on particular areas - North Dublin Areas
 northDublin = data.frame(crimeOffences %>% filter(Garda_Station %in% c(
   "62101 Bridewell Dublin, D.M.R. North Central Division", 
@@ -312,18 +326,44 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
 
                           shinyApp(ui = ui, server = server) #runs the shiny app, showing the dashboard & map
                           
-                    #clusters
+                          #clusters
+                          #NORTH DUBLIN
                           #writing to csv, then reading back in to have labels for cluster, col 1 = labels             
                           write.csv(averageCrimesAllTimeNorth, "/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", row.names = FALSE)
+                          
+                          #THIS DATASET HAS BEEN EDITED IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
                           averageNorthAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", header = TRUE, row.names = 1, sep = ",")
                           
                           set.seed(1234)
-                          
                           kmeans.ani(averageNorthAllTime[1:2], 2)
                           
                           #creates 3 clusters from data
                           km.clus <- kmeans(averageNorthAllTime, 3) #creates cluster with 3 clusters(groups)
                           fviz_cluster(km.clus, averageNorthAllTime, main="North Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
+                          
+                          #SOUTH DUBLIN
+                          write.csv(averageCrimesAllTimeSouth, "/Users/ryanjohnston/development/r/crime/Datasets/averageSouthAllTime.csv", row.names = FALSE)
+                          
+                          #THIS DATASET HAS BEEN EDITED IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
+                          averageSouthAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageSouthAllTime.csv", header = TRUE, row.names = 1, sep = ",")
+                          
+                          set.seed(1234)
+                          kmeans.ani(averageSouthAllTime[1:2], 2)
+                          
+                          #creates 3 clusters from data
+                          km.clus <- kmeans(averageSouthAllTime, 5) #creates cluster with 3 clusters(groups)
+                          fviz_cluster(km.clus, averageSouthAllTime, main="South Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
+                          
+                          #NORTH & SOUTH DUBLIN CLUSTER
+                          #THIS DATASET HAS BEEN *CREATED* IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
+                          averageAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageAllTime.csv", header = TRUE, row.names = 1, sep = ",")
+                          
+                          set.seed(1234)
+                          kmeans.ani(averageAllTime[1:2], 2)
+                          
+                          #creates 3 clusters from data
+                          km.clus <- kmeans(averageAllTime, 3) #creates cluster with 3 clusters(groups)
+                          fviz_cluster(km.clus, averageAllTime, main="Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
                           
              #-----------BARPLOT
                    #mean of all north vs all south together
