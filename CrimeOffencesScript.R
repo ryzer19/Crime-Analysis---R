@@ -427,4 +427,19 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                        summary(halfmodel_northDublin_incomeAndCrime)
                        plot(halfmodel_northDublin_incomeAndCrime)
                        
-                     
+                       #data is NORMAL so parametric tests are to be done
+                          #pearsons R correlation
+                       #value = -1(perfectly negative association), 0(no association) , 1(perfectly positive association)
+                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.1, alternative = "greater")  #0.2351258 - correlation - positive association
+                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.2, alternative = "greater")  #-0.1579969
+                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.3, alternative = "greater")  #0.03016411 
+                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.4, alternative = "greater")  #-0.1341515
+                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.5, alternative = "greater")  #0.03577719
+                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.6, alternative = "greater")  #0.1255371 - correlation - positive association
+                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.8, alternative = "greater")  #0.07597163
+                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.7, alternative = "greater")  #0.03234386
+                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.9, alternative = "greater")  #-0.02089501
+                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.10, alternative = "greater") #-0.1074566
+                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.11, alternative = "greater") #-0.004724964
+                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.12, alternative = "greater") #0.004500105
+                      
