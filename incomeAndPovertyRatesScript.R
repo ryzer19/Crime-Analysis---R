@@ -88,7 +88,7 @@ incomeDFforCluster <- mean()
                               
             
 #writing to csv, then reading back in to have labels for cluster, col 1 = labels             
-write.csv(avgIncome,"/Users/ryanjohnston/development/r/crime/Datasets/avgIncome_cluster.csv", row.names = FALSE)
+#write.csv(avgIncome,"/Users/ryanjohnston/development/r/crime/Datasets/avgIncome_cluster.csv", row.names = FALSE)
 avgIncome_cluster <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/avgIncome_cluster.csv", header = TRUE, row.names = 1, sep = ",")
 
 #pasting Year values in to avgIncome_cluster

@@ -335,7 +335,7 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                           #clusters
                           #NORTH DUBLIN
                           #writing to csv, then reading back in to have labels for cluster, col 1 = labels             
-                          write.csv(averageCrimesAllTimeNorth, "/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", row.names = FALSE)
+                         # write.csv(averageCrimesAllTimeNorth, "/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", row.names = FALSE)
                           
                           #THIS DATASET HAS BEEN EDITED IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
                           averageNorthAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", header = TRUE, row.names = 1, sep = ",")
@@ -348,7 +348,7 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                           fviz_cluster(km.clus, averageNorthAllTime, main="North Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
                           
                           #SOUTH DUBLIN
-                          write.csv(averageCrimesAllTimeSouth, "/Users/ryanjohnston/development/r/crime/Datasets/averageSouthAllTime.csv", row.names = FALSE)
+                         #write.csv(averageCrimesAllTimeSouth, "/Users/ryanjohnston/development/r/crime/Datasets/averageSouthAllTime.csv", row.names = FALSE)
                           
                           #THIS DATASET HAS BEEN EDITED IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
                           averageSouthAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageSouthAllTime.csv", header = TRUE, row.names = 1, sep = ",")
@@ -419,13 +419,14 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                        #creating linear model
                        fullmodel_northDublin_incomeAndCrime <- lm(Income ~ Crime.1 + Crime.2 + Crime.3 + Crime.4 + Crime.5 + Crime.6 + Crime.7 + Crime.8 + Crime.9 + Crime.10 + Crime.11 + Crime.12 ,data=crimeOffences_northDublin_reformatted)
                        #summary to check significance for correllation
-                       summary(fullmodel_northDublin_incomeAndCrime)
+                       summary(fullmodel_northDublin_incomeAndCrime) #R^2 = 36% data can only be explained by model
                        plot(fullmodel_northDublin_incomeAndCrime)
                        
                        #creating linear model for columns with '*' - suggest level of statistical significance with regression coefficient
                        halfmodel_northDublin_incomeAndCrime <- lm(Income ~ Crime.1 + Crime.2 + Crime.4 + Crime.5 + Crime.10, data = crimeOffences_northDublin_reformatted )
-                       summary(halfmodel_northDublin_incomeAndCrime)
+                       summary(halfmodel_northDublin_incomeAndCrime) #R^2 = 30% data can only be explained by model
                        plot(halfmodel_northDublin_incomeAndCrime)
+                       
                        
                        #data is NORMAL so parametric tests are to be done
                           #pearsons R correlation
