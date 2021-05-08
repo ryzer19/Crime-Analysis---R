@@ -20,6 +20,7 @@ library(shiny)
 library(shinydashboard)
 library(RColorBrewer)
 library(data.table)
+library(DT)
 
 #loading datasets
 crimeOffences <- read.csv(file = '/Users/ryanjohnston/development/r/crime/Datasets/RecordedCrimeOffences.csv')
@@ -335,7 +336,7 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                           #clusters
                           #NORTH DUBLIN
                           #writing to csv, then reading back in to have labels for cluster, col 1 = labels             
-                         # write.csv(averageCrimesAllTimeNorth, "/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", row.names = FALSE)
+                         #write.csv(averageCrimesAllTimeNorth, "/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", row.names = FALSE)
                           
                           #THIS DATASET HAS BEEN EDITED IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
                           averageNorthAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", header = TRUE, row.names = 1, sep = ",")
@@ -407,7 +408,7 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                        
                        #average crimes by year 2009-2019 -  FOR EDUCATION COMPARISON
                        ggplot(avgCrimesByYear, aes(x = factor(Year), y = Value)) +
-                         geom_point() +
+                         geom_point(size = 5) +
                          labs( title = "Average Crimes by Year",
                                x = "Crimes",  
                                y = "Year"
@@ -416,6 +417,8 @@ totalSouthValue <- aggregate(southDublin$Value, by=list(southDublin$Garda_Statio
                          theme(axis.title = element_text())
                        
               #data analysis tests
+                       #data table of structure of reformatted dataset to be used for tests
+                       datatable(crimeOffences_northDublin_reformatted)
                        #creating linear model
                        fullmodel_northDublin_incomeAndCrime <- lm(Income ~ Crime.1 + Crime.2 + Crime.3 + Crime.4 + Crime.5 + Crime.6 + Crime.7 + Crime.8 + Crime.9 + Crime.10 + Crime.11 + Crime.12 ,data=crimeOffences_northDublin_reformatted)
                        #summary to check significance for correllation
