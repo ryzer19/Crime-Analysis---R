@@ -227,24 +227,27 @@ datatable(totalSouthValue)
                                   north_location_2003_2019 <- left_join(north2003_2019, Total.40, 
                                                          by = c("Garda_Station" = "Garda_Station"))
                                         north_location_2003_2019 <- select(north_location_2003_2019, -7) #deleting total column
-                                  
-                                  
+
                                   #join locations(long&lat) to yearly data frame - SOUTH
                                   south_location_2003_2019 <- left_join(south2003_2019, Total.40, 
                                                                         by = c("Garda_Station" = "Garda_Station"))
                                         south_location_2003_2019 <- select(south_location_2003_2019, -7) #deleting total column
                                   
-                                        iconsNorthStyle <- awesomeIcons(
+                                        
+                                  all_location_2003_2019 <- rbind(north_location_2003_2019, south_location_2003_2019)
+                                  
+#------------------------------------------------------------------------------------------------------------------------
+                                        allIconsStyle <- awesomeIcons(
                                           icon = 'ios-close',
                                           iconColor = 'black',
                                           library = 'ion',
-                                          markerColor = getColorShinyNorth(north_location_2003_2019) #uses function getColorShinyNorth to determine colours of the variables on map
+                                          markerColor = getColorShinyNorth(all_location_2003_2019) #uses function getColorShinyNorth to determine colours of the variables on map
                                         )
                                         
                  #ICON CREATION FOR SHINY MAP DASHBOARD
                                         #function - sets colours for each pin icon, changes with values listed below
-                                        getColorShinyNorth <- function(north_location_2003_2019) {
-                                          sapply(north_location_2003_2019$Value, function(Value) {
+                                        getColorShinyAll <- function(all_location_2003_2019) {
+                                          sapply(all_location_2003_2019$Value, function(Value) {
                                             if(Value <= 1825) { #1825 is 5 crimes a day - green shows "safe"
                                               "green" 
                                             } else if(Value <= 3650) { #3650 is 10 crimes a day - orange shows "slightly-unsafe
@@ -254,33 +257,34 @@ datatable(totalSouthValue)
                                             } })
                                         }
                                         
+                                        
                       #SHINY MAP & DASHBOARD IMPLEMENTATION
                                 ui <- dashboardPage(
                                   skin = "red", #background colour
                                   dashboardHeader(title = "Crime Dashboard"), #dashboard title
                                   dashboardSidebar( #sidebar formation for slider bar
                                     sliderInput("Year_Range", label = "Year Range", #slider bar
-                                                min = min(north_location_2003_2019$Year), #gets min year from 'year' column
-                                                max = max(north_location_2003_2019$Year), #gets max year from 'year' column
-                                                value = c(min(north_location_2003_2019$Year, max(north_location_2003_2019$Year))), #copying values for slider
+                                                min = min(all_location_2003_2019$Year), #gets min year from 'year' column
+                                                max = max(all_location_2003_2019$Year), #gets max year from 'year' column
+                                                value = c(min(all_location_2003_2019$Year, max(all_location_2003_2019$Year))), #copying values for slider
                                                 sep = "", #if this wasn't here year 2003 would be 20,03
                                                 step = 1
                                                 )
                                   ),
                                   dashboardBody(
-                                    fluidRow(box(width = 12, leafletOutput(outputId = "north_map"))), #map width
+                                    fluidRow(box(width = 12, leafletOutput(outputId = "map"))), #map width
                                     fluidRow(box(width = 12, dataTableOutput(outputId = "summary_table"))) #dashboard width (under map)
                                   )
                                 )
                                 server <- function(input, output) {
                                   data_input <- reactive({
-                                    north_location_2003_2019 %>%
+                                    all_location_2003_2019 %>%
                                       filter(Year == input$Year_Range[1]) %>%
                                       group_by(Garda_Station)
                                   })
 
                                   data_input_ordered <- reactive({
-                                    data_input()[order(match(data_input()$Location, north_location_2003_2019$Value)),]
+                                    data_input()[order(match(data_input()$Location, all_location_2003_2019$Value)),]
                                   })
                                   
                                   
@@ -290,12 +294,12 @@ datatable(totalSouthValue)
                                       )
                                   })
                                   
-                                  output$north_map <- renderLeaflet(
+                                  output$map <- renderLeaflet(
                                     leaflet()%>%addTiles()%>%addAwesomeMarkers(
-                                      data = north_location_2003_2019, #locations data frame used
+                                      data = all_location_2003_2019, #locations data frame used
                                       lat = ~Latitude, #latitude coordinate taken from Latitude column in data frame
                                       lng = ~Longitude, #longitude coordinate taken from Longitude column in data frame
-                                      icon = iconsNorthStyle, #sets the icon style
+                                      icon = allIconsStyle, #sets the icon style
                                       label =  lapply(labels(), HTML), #adds locations to each label when hovered over the icon
                                       popup = ~as.character(data_input()$Value)) #displays pop-up of value of crimes in that area when icon pressed
                                   )
@@ -306,42 +310,45 @@ datatable(totalSouthValue)
                           shinyApp(ui = ui, server = server) #runs the shiny app, showing the dashboard & map
 
                           
+#-------------------------------------------------------------------------------
+
                           
-                          #clusters
-                          #NORTH DUBLIN
-                          #writing to csv, then reading back in to have labels for cluster, col 1 = labels             
-                          #write.csv(averageCrimesAllTimeNorth, "/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", row.names = FALSE)
                           
-                          #THIS DATASET HAS BEEN EDITED IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
-                          averageNorthAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", header = TRUE, row.names = 1, sep = ",")
-                          
-                          set.seed(1234)
-                          kmeans.ani(averageNorthAllTime[1:2], 2)
-                              #creates 3 clusters from data
-                              km.clus <- kmeans(averageNorthAllTime, 3) #creates cluster with 3 clusters(groups)
-                              fviz_cluster(km.clus, averageNorthAllTime, main="North Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
-                          
-                          #SOUTH DUBLIN
-                          #write.csv(averageCrimesAllTimeSouth, "/Users/ryanjohnston/development/r/crime/Datasets/averageSouthAllTime.csv", row.names = FALSE)
-                          #THIS DATASET HAS BEEN EDITED IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
-                          averageSouthAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageSouthAllTime.csv", header = TRUE, row.names = 1, sep = ",")
-                          
-                          set.seed(1234)
-                          kmeans.ani(averageSouthAllTime[1:2], 2)
-                              #creates 3 clusters from data
-                              km.clus <- kmeans(averageSouthAllTime, 5) #creates cluster with 3 clusters(groups)
-                              fviz_cluster(km.clus, averageSouthAllTime, main="South Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
-                          
-                          #NORTH & SOUTH DUBLIN CLUSTER
-                          #THIS DATASET HAS BEEN *CREATED* IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
-                          averageAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageAllTime.csv", header = TRUE, row.names = 1, sep = ",")
-                          
-                          set.seed(1234)
-                          kmeans.ani(averageAllTime[1:2], 2)
-                              #creates 3 clusters from data
-                              km.clus <- kmeans(averageAllTime, 3) #creates cluster with 3 clusters(groups)
-                              fviz_cluster(km.clus, averageAllTime, main="Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
-                          
+        #clusters
+        #NORTH DUBLIN
+        #writing to csv, then reading back in to have labels for cluster, col 1 = labels             
+        #write.csv(averageCrimesAllTimeNorth, "/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", row.names = FALSE)
+        
+        #THIS DATASET HAS BEEN EDITED IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
+        averageNorthAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", header = TRUE, row.names = 1, sep = ",")
+        
+        set.seed(1234)
+        kmeans.ani(averageNorthAllTime[1:2], 2)
+            #creates 3 clusters from data
+            km.clus <- kmeans(averageNorthAllTime, 3) #creates cluster with 3 clusters(groups)
+            fviz_cluster(km.clus, averageNorthAllTime, main="North Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
+        
+        #SOUTH DUBLIN
+        #write.csv(averageCrimesAllTimeSouth, "/Users/ryanjohnston/development/r/crime/Datasets/averageSouthAllTime.csv", row.names = FALSE)
+        #THIS DATASET HAS BEEN EDITED IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
+        averageSouthAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageSouthAllTime.csv", header = TRUE, row.names = 1, sep = ",")
+        
+        set.seed(1234)
+        kmeans.ani(averageSouthAllTime[1:2], 2)
+            #creates 3 clusters from data
+            km.clus <- kmeans(averageSouthAllTime, 5) #creates cluster with 3 clusters(groups)
+            fviz_cluster(km.clus, averageSouthAllTime, main="South Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
+        
+        #NORTH & SOUTH DUBLIN CLUSTER
+        #THIS DATASET HAS BEEN *CREATED* IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
+        averageAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageAllTime.csv", header = TRUE, row.names = 1, sep = ",")
+        
+        set.seed(1234)
+        kmeans.ani(averageAllTime[1:2], 2)
+            #creates 3 clusters from data
+            km.clus <- kmeans(averageAllTime, 3) #creates cluster with 3 clusters(groups)
+            fviz_cluster(km.clus, averageAllTime, main="Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
+        
                               
                               
                               
@@ -451,6 +458,6 @@ datatable(totalSouthValue)
           shapiro.test(crimeOffences_northDublin_reformatted$Crime.10)
           
                       #p value < 0.05 in all columns showing the data is NOT-NORMAL
-            
+          
         
         
