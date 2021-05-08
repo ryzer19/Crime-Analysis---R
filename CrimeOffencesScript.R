@@ -23,6 +23,8 @@ library(RColorBrewer)
 library(data.table)
 library(DT)
 library(flextable)
+library(ggpubr)
+
 
 #loading datasets
 crimeOffences <- read.csv(file = '/Users/ryanjohnston/development/r/crime/Datasets/RecordedCrimeOffences.csv')
@@ -143,7 +145,11 @@ datatable(totalSouthValue)
               44234,#CLONDALKIN
       35606)#BALLYFERMOT
       
-#---------MAP
+      
+      
+      
+      
+#---------MAP OF NORTH & SOUTH - TOTAL CRIME------------------------------------
          #map visualisation total reported crimes of each garda station
           Total.40 <- locations[1:40,]
            
@@ -177,9 +183,16 @@ datatable(totalSouthValue)
                  label =  locations$Location, #adds locations to each label when hovered over the icon
                  popup = ~as.character(Total)) #displays popup of value of crimes in that area when icon pressed
               
-               #displays map
+               #displays map visualisation
                allTimeMap
-           ###---------------------------------------------------------------               
+               
+               
+#-------------------------------------------------------------------------------
+               
+               
+               
+               
+               
              
            #adding garda station name to Total.40 df for join
               #making df for paste
@@ -275,52 +288,49 @@ datatable(totalSouthValue)
                                     paste("<p>", data_input_ordered()$Location, "</p>", #location word stored in paragraph tag
                                           sep = ""
                                       )
-                                    
                                   })
                                   
-                                 
                                   output$north_map <- renderLeaflet(
                                     leaflet()%>%addTiles()%>%addAwesomeMarkers(
                                       data = north_location_2003_2019, #locations data frame used
                                       lat = ~Latitude, #latitude coordinate taken from Latitude column in data frame
                                       lng = ~Longitude, #longitude coordinate taken from Longitude column in data frame
-                                      icon=iconsNorthStyle, #sets the icon style
+                                      icon = iconsNorthStyle, #sets the icon style
                                       label =  lapply(labels(), HTML), #adds locations to each label when hovered over the icon
                                       popup = ~as.character(data_input()$Value)) #displays pop-up of value of crimes in that area when icon pressed
                                   )
-                                 
+
                                   output$summary_table <- renderDataTable(data_input()) #outputs summary table containing data below map on dashboard
-                                }
+                                  }
 
                           shinyApp(ui = ui, server = server) #runs the shiny app, showing the dashboard & map
+
+                          
                           
                           #clusters
                           #NORTH DUBLIN
                           #writing to csv, then reading back in to have labels for cluster, col 1 = labels             
-                         #write.csv(averageCrimesAllTimeNorth, "/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", row.names = FALSE)
+                          #write.csv(averageCrimesAllTimeNorth, "/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", row.names = FALSE)
                           
                           #THIS DATASET HAS BEEN EDITED IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
                           averageNorthAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageNorthAllTime.csv", header = TRUE, row.names = 1, sep = ",")
                           
                           set.seed(1234)
                           kmeans.ani(averageNorthAllTime[1:2], 2)
-                          
-                          #creates 3 clusters from data
-                          km.clus <- kmeans(averageNorthAllTime, 3) #creates cluster with 3 clusters(groups)
-                          fviz_cluster(km.clus, averageNorthAllTime, main="North Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
+                              #creates 3 clusters from data
+                              km.clus <- kmeans(averageNorthAllTime, 3) #creates cluster with 3 clusters(groups)
+                              fviz_cluster(km.clus, averageNorthAllTime, main="North Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
                           
                           #SOUTH DUBLIN
-                         #write.csv(averageCrimesAllTimeSouth, "/Users/ryanjohnston/development/r/crime/Datasets/averageSouthAllTime.csv", row.names = FALSE)
-                          
+                          #write.csv(averageCrimesAllTimeSouth, "/Users/ryanjohnston/development/r/crime/Datasets/averageSouthAllTime.csv", row.names = FALSE)
                           #THIS DATASET HAS BEEN EDITED IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
                           averageSouthAllTime <- read.csv("/Users/ryanjohnston/development/r/crime/Datasets/averageSouthAllTime.csv", header = TRUE, row.names = 1, sep = ",")
                           
                           set.seed(1234)
                           kmeans.ani(averageSouthAllTime[1:2], 2)
-                          
-                          #creates 3 clusters from data
-                          km.clus <- kmeans(averageSouthAllTime, 5) #creates cluster with 3 clusters(groups)
-                          fviz_cluster(km.clus, averageSouthAllTime, main="South Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
+                              #creates 3 clusters from data
+                              km.clus <- kmeans(averageSouthAllTime, 5) #creates cluster with 3 clusters(groups)
+                              fviz_cluster(km.clus, averageSouthAllTime, main="South Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
                           
                           #NORTH & SOUTH DUBLIN CLUSTER
                           #THIS DATASET HAS BEEN *CREATED* IN EXCEL AFTER WRITING FROM R, another column added to allow for cluster matrix ***
@@ -328,11 +338,13 @@ datatable(totalSouthValue)
                           
                           set.seed(1234)
                           kmeans.ani(averageAllTime[1:2], 2)
+                              #creates 3 clusters from data
+                              km.clus <- kmeans(averageAllTime, 3) #creates cluster with 3 clusters(groups)
+                              fviz_cluster(km.clus, averageAllTime, main="Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
                           
-                          #creates 3 clusters from data
-                          km.clus <- kmeans(averageAllTime, 3) #creates cluster with 3 clusters(groups)
-                          fviz_cluster(km.clus, averageAllTime, main="Dublin Average Crimes")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
-                          
+                              
+                              
+                              
              #-----------BARPLOT
                    #mean of all north vs all south together
                        crimesNorth <- mean(averageCrimesAllTimeNorth$Value)
@@ -354,9 +366,12 @@ datatable(totalSouthValue)
                                cex.names = 0.6, 
                                font.axis = 2,
                                space=c(0),
-                               col = c("#3CA0D0")
+                               col = c("#3CD0D6")
                              )
                       
+                       
+                       
+                       
                       #barplot 5 year top 5 north vs south
                        #finglas, blanch, store st, bridewell, coolock
                        #tallaght, dundrum, dun laoighre, pearse st, kevin st
@@ -364,8 +379,10 @@ datatable(totalSouthValue)
                        top5North <- data.frame(50622,95535,157464,103752,50225)
                        top5South <- data.frame(101189,49157,171741,55677,45383)
 
-                       write.xlsx(northDublin, file, sheetName = "Sheet1", 
-                                  col.names = TRUE, row.names = TRUE, append = FALSE)
+                       
+                       #write.xlsx(northDublin, file, sheetName = "Sheet1", col.names = TRUE, row.names = TRUE, append = FALSE)
+
+                       
                        
                        #average crimes by year 2009-2019 -  FOR EDUCATION COMPARISON
                        ggplot(avgCrimesByYear, aes(x = factor(Year), y = Value)) +
@@ -377,55 +394,63 @@ datatable(totalSouthValue)
                          theme_fivethirtyeight() +
                          theme(axis.title = element_text())
                        
-              #data analysis tests
-                       #data table of structure of reformatted dataset to be used for tests
-                       datatable(crimeOffences_northDublin_reformatted)
                        
-                       #creating linear model
-                       fullmodel_northDublin_incomeAndCrime <- lm(Income ~ Crime.1 + Crime.2 + Crime.3 + Crime.4 + Crime.5 + Crime.6 + Crime.7 + Crime.8 + Crime.9 + Crime.10 + Crime.11 + Crime.12 ,data=crimeOffences_northDublin_reformatted)
-                       #summary to check significance for correllation
-                       summary(fullmodel_northDublin_incomeAndCrime) #R^2 = 36% data can only be explained by model
-                       plot(fullmodel_northDublin_incomeAndCrime)
                        
-                       #creating linear model for columns with '*' - suggest level of statistical significance with regression coefficient
-                       halfmodel_northDublin_incomeAndCrime <- lm(Income ~ Crime.1 + Crime.2 + Crime.4 + Crime.5 + Crime.10, data = crimeOffences_northDublin_reformatted )
-                       #summary to check significance for correllation
-                       summary(halfmodel_northDublin_incomeAndCrime) #R^2 = 30% data can only be explained by model
-                       plot(halfmodel_northDublin_incomeAndCrime)
                        
-                    #flextable of models
-                      #fulltable
-                      table_fullModel <- as_flextable(fullmodel_northDublin_incomeAndCrime)
-                        table_fullModel <- theme_box(table_fullModel)
-                          table_fullModel <- bold(table_fullModel, bold = TRUE, part = "all")
-                            table_fullModel <- bg(table_fullModel, bg = "lightgray", part = "all")
-                              table_fullModel <- color(table_fullModel, color= "blue", part = "header")
-                                table_fullModel <- color(table_fullModel, color= "navy", part = "body")
-                                  table_fullModel <- color(table_fullModel, color = "black", part = "footer")
-                      table_fullModel
-                      
-                      #halfmodel table
-                      table_halfModel <- as_flextable(halfmodel_northDublin_incomeAndCrime)
-                        table_halfModel <- theme_box(table_halfModel)
-                          table_halfModel <- bold(table_halfModel, bold = TRUE, part = "all")
-                            table_halfModel <- bg(table_halfModel, bg = "lightgray", part = "all")
-                              table_halfModel <- color(table_halfModel, color= "blue", part = "header")
-                                table_halfModel <- color(table_halfModel, color= "navy", part = "body")
-                                  table_halfModel <- color(table_halfModel, color = "black", part = "footer")
-                      table_halfModel
                        
-                       #data is NORMAL so parametric tests are to be done
-                          #pearsons R correlation
-                       #value = -1(perfectly negative association), 0(no association) , 1(perfectly positive association)
-                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.1, alternative = "greater")  #0.2351258 - correlation - positive association
-                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.2, alternative = "greater")  #-0.1579969
-                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.3, alternative = "greater")  #0.03016411 
-                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.4, alternative = "greater")  #-0.1341515
-                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.5, alternative = "greater")  #0.03577719
-                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.6, alternative = "greater")  #0.1255371 - correlation - positive association
-                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.8, alternative = "greater")  #0.07597163
-                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.7, alternative = "greater")  #0.03234386
-                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.9, alternative = "greater")  #-0.02089501
-                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.10, alternative = "greater") #-0.1074566
-                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.11, alternative = "greater") #-0.004724964
-                       cor.test(crimeOffences_northDublin_reformatted$Income, crimeOffences_northDublin_reformatted$Crime.12, alternative = "greater") #0.004500105
+#data analysis tests
+     #data table of structure of reformatted dataset to be used for tests
+     datatable(crimeOffences_northDublin_reformatted)
+     
+     #creating linear model
+     fullmodel_northDublin_incomeAndCrime <- lm(Income ~ Crime.1 + Crime.2 + Crime.3 + Crime.4 + Crime.5 + Crime.6 + Crime.7 + Crime.8 + Crime.9 + Crime.10 + Crime.11 + Crime.12 ,data=crimeOffences_northDublin_reformatted)
+     #summary to check significance for correllation
+     summary(fullmodel_northDublin_incomeAndCrime) #R^2 = 36% data can only be explained by model
+     plot(fullmodel_northDublin_incomeAndCrime)
+     
+     #creating linear model for columns with '*' - suggest level of statistical significance with regression coefficient
+     halfmodel_northDublin_incomeAndCrime <- lm(Income ~ Crime.1 + Crime.2 + Crime.4 + Crime.5 + Crime.10, data = crimeOffences_northDublin_reformatted )
+     #summary to check significance for correllation
+     summary(halfmodel_northDublin_incomeAndCrime) #R^2 = 30% data can only be explained by model
+     plot(halfmodel_northDublin_incomeAndCrime)
+     
+     
+  #flextable of models
+    #fulltable
+    table_fullModel <- as_flextable(fullmodel_northDublin_incomeAndCrime)
+      table_fullModel <- theme_box(table_fullModel)
+        table_fullModel <- bold(table_fullModel, bold = TRUE, part = "all")
+          table_fullModel <- bg(table_fullModel, bg = "lightgray", part = "all")
+            table_fullModel <- color(table_fullModel, color= "blue", part = "header")
+              table_fullModel <- color(table_fullModel, color= "navy", part = "body")
+                table_fullModel <- color(table_fullModel, color = "black", part = "footer")
+    table_fullModel #output of table with styles applied above
+    
+    #halfmodel table
+    table_halfModel <- as_flextable(halfmodel_northDublin_incomeAndCrime)
+      table_halfModel <- theme_box(table_halfModel)
+        table_halfModel <- bold(table_halfModel, bold = TRUE, part = "all")
+          table_halfModel <- bg(table_halfModel, bg = "lightgray", part = "all")
+            table_halfModel <- color(table_halfModel, color= "blue", part = "header")
+              table_halfModel <- color(table_halfModel, color= "navy", part = "body")
+                table_halfModel <- color(table_halfModel, color = "black", part = "footer")
+    table_halfModel #output of table with styles applied above
+     
+    
+    #testing for normality
+        #QQPlots to visualise result
+          ggqqplot(crimeOffences_northDublin_reformatted$Crime.1)
+          ggqqplot(crimeOffences_northDublin_reformatted$Crime.3)
+          ggqqplot(crimeOffences_northDublin_reformatted$Crime.6)
+          ggqqplot(crimeOffences_northDublin_reformatted$Crime.10)
+          
+        #shapiro-wilk test for normality with random samples
+          shapiro.test(crimeOffences_northDublin_reformatted$Crime.1)
+          shapiro.test(crimeOffences_northDublin_reformatted$Crime.3)
+          shapiro.test(crimeOffences_northDublin_reformatted$Crime.6)
+          shapiro.test(crimeOffences_northDublin_reformatted$Crime.10)
+          
+                      #p value < 0.05 in all columns showing the data is NOT-NORMAL
+            
+        
+        
