@@ -444,6 +444,29 @@ datatable(totalSouthValue)
                          theme(axis.title = element_text())
                        
                        
+                      
+                       
+          #top 5 types of crime North Dublin
+                       #find top 5 types
+          top5Crime <- aggregate(Value~Type_Of_Offence,northDublin,sum)
+          
+              #keep Year value too for visualisation
+          top5Crime_year <- aggregate(Value~Type_Of_Offence+Year,northDublin,sum) 
+                top5_crimeType <- top5Crime_year %>%
+                    filter(Type_Of_Offence %in% c("Theft and related offences",
+                                                  "Public order and other social code offences",
+                                                  "Damage to property and to the environment",
+                                                  "Offences against government, justice procedures and organisation of crime",
+                                                  "Burglary and related offences"))
+                
+                write.csv(top5_crimeType, "/Users/ryanjohnston/development/r/crime/Datasets/top5_crimeType.csv", row.names = FALSE)
+                
+                #line & plot graph showing top 5 crimes & values by year
+                top5_crimeType %>% ggplot( (aes(x= Year, y = Value, color=Type_Of_Offence))) +
+                  geom_line(lwd = 1)+ geom_point(size=2)+
+                  scale_x_continuous(breaks=seq(2004, 2020,2))+
+                  scale_y_continuous(breaks=seq(0, 20000,2500))+
+                  theme_dark()
                        
                        
                        
@@ -498,8 +521,8 @@ datatable(totalSouthValue)
           shapiro.test(crimeOffences_northDublin_reformatted$Crime.3)
           shapiro.test(crimeOffences_northDublin_reformatted$Crime.6)
           shapiro.test(crimeOffences_northDublin_reformatted$Crime.10)
+                  #p value < 0.05 in all columns showing the data is NOT-NORMAL
           
-                      #p value < 0.05 in all columns showing the data is NOT-NORMAL
+          #nonparametric tests
           
-        
-        
+          

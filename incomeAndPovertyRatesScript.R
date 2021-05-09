@@ -141,7 +141,7 @@ summary(income_cluster1)
             theme(axis.title = element_text())
           
           #AVG CRIMES, AVG INCOME, YEAR
-         incomeCrimePlot <- ggplot(avgCrimesWithIncome, aes(x = Year, y = IncomeValue, color = CrimeValue, palette = )) +
+         incomeCrimePlot <- ggplot(avgCrimesWithIncome, aes(x = Year, y = IncomeValue, color = CrimeValue)) +
             geom_line(size=1.5, color=1) + geom_point(size = 10)+
             labs( title = "Average Income by Year",
                   subtitle = "        with Average Crimes",
