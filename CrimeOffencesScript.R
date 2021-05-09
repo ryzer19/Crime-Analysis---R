@@ -8,6 +8,7 @@ install.packages("ggplot2")
 install.packages("scales")
 install.packages("flextable")
 
+
 library(tidyverse)
 library(rvest)
 library(dplyr)
@@ -15,6 +16,7 @@ library(plyr)
 library(leaflet)
 library(writexl)
 library(ggplot2)
+library(easyGgplot2)
 library(scales)
 library(ggthemes)
 library(shiny)
@@ -237,78 +239,79 @@ datatable(totalSouthValue)
                                   all_location_2003_2019 <- rbind(north_location_2003_2019, south_location_2003_2019)
                                   
 #------------------------------------------------------------------------------------------------------------------------
-                                        allIconsStyle <- awesomeIcons(
-                                          icon = 'ios-close',
-                                          iconColor = 'black',
-                                          library = 'ion',
-                                          markerColor = getColorShinyNorth(all_location_2003_2019) #uses function getColorShinyNorth to determine colours of the variables on map
-                                        )
-                                        
-                 #ICON CREATION FOR SHINY MAP DASHBOARD
-                                        #function - sets colours for each pin icon, changes with values listed below
-                                        getColorShinyAll <- function(all_location_2003_2019) {
-                                          sapply(all_location_2003_2019$Value, function(Value) {
-                                            if(Value <= 1825) { #1825 is 5 crimes a day - green shows "safe"
-                                              "green" 
-                                            } else if(Value <= 3650) { #3650 is 10 crimes a day - orange shows "slightly-unsafe
-                                              "orange"
-                                            } else {
-                                              "red" #red shows "unsafe" 16 crimes a day avg
-                                            } })
-                                        }
-                                        
-                                        
-                      #SHINY MAP & DASHBOARD IMPLEMENTATION
-                                ui <- dashboardPage(
-                                  skin = "red", #background colour
-                                  dashboardHeader(title = "Crime Dashboard"), #dashboard title
-                                  dashboardSidebar( #sidebar formation for slider bar
-                                    sliderInput("Year_Range", label = "Year Range", #slider bar
-                                                min = min(all_location_2003_2019$Year), #gets min year from 'year' column
-                                                max = max(all_location_2003_2019$Year), #gets max year from 'year' column
-                                                value = c(min(all_location_2003_2019$Year, max(all_location_2003_2019$Year))), #copying values for slider
-                                                sep = "", #if this wasn't here year 2003 would be 20,03
-                                                step = 1
-                                                )
-                                  ),
-                                  dashboardBody(
-                                    fluidRow(box(width = 12, leafletOutput(outputId = "map"))), #map width
-                                    fluidRow(box(width = 12, dataTableOutput(outputId = "summary_table"))) #dashboard width (under map)
-                                  )
+                                allIconsStyle <- awesomeIcons(
+                                  icon = 'ios-close',
+                                  iconColor = 'black',
+                                  library = 'ion',
+                                  markerColor = getColorShinyAll(all_location_2003_2019) #uses function getColorShinyNorth to determine colours of the variables on map
                                 )
-                                server <- function(input, output) {
-                                  data_input <- reactive({
-                                    all_location_2003_2019 %>%
-                                      filter(Year == input$Year_Range[1]) %>%
-                                      group_by(Garda_Station)
-                                  })
+                                
+         #ICON CREATION FOR SHINY MAP DASHBOARD
+                                #function - sets colours for each pin icon, changes with values listed below
+                                getColorShinyAll <- function(all_location_2003_2019) {
+                                  sapply(all_location_2003_2019$Value, function(Value) {
+                                    if(Value <= 1825) { #1825 is 5 crimes a day - green shows "safe"
+                                      "green" 
+                                    } else if(Value <= 3650) { #3650 is 10 crimes a day - orange shows "slightly-unsafe
+                                      "orange"
+                                    } else {
+                                      "red" #red shows "unsafe" 16 crimes a day avg
+                                    } })
+                                }
+                                
+                                
+              #SHINY MAP & DASHBOARD IMPLEMENTATION
+                        ui <- dashboardPage(
+                          skin = "red", #background colour
+                          dashboardHeader(title = "Crime Dashboard"), #dashboard title
+                          dashboardSidebar( #sidebar formation for slider bar
+                            sliderInput("Year_Range", label = "Year Range", #slider bar
+                                        min = min(all_location_2003_2019$Year), #gets min year from 'year' column
+                                        max = max(all_location_2003_2019$Year), #gets max year from 'year' column
+                                        value = c(min(all_location_2003_2019$Year, max(all_location_2003_2019$Year))), #copying values for slider
+                                        sep = "", #if this wasn't here year 2003 would be 20,03
+                                        step = 1
+                                        )
+                          ),
+                          dashboardBody(
+                            fluidRow(box(width = 12, leafletOutput(outputId = "map"))), #map width
+                            fluidRow(box(width = 12, dataTableOutput(outputId = "summary_table"))) #dashboard width (under map)
+                          )
+                        )
+                        server <- function(input, output) {
+                          data_input <- reactive({
+                            all_location_2003_2019 %>%
+                              filter(Year == input$Year_Range[1]) %>%
+                              group_by(Garda_Station)
+                          })
 
-                                  data_input_ordered <- reactive({
-                                    data_input()[order(match(data_input()$Location, all_location_2003_2019$Value)),]
-                                  })
-                                  
-                                  
-                                  labels <- reactive({ #reactive function changes labels as slider changes year
-                                    paste("<p>", data_input_ordered()$Location, "</p>", #location word stored in paragraph tag
-                                          sep = ""
-                                      )
-                                  })
-                                  
-                                  output$map <- renderLeaflet(
-                                    leaflet()%>%addTiles()%>%addAwesomeMarkers(
-                                      data = all_location_2003_2019, #locations data frame used
-                                      lat = ~Latitude, #latitude coordinate taken from Latitude column in data frame
-                                      lng = ~Longitude, #longitude coordinate taken from Longitude column in data frame
-                                      icon = allIconsStyle, #sets the icon style
-                                      label =  lapply(labels(), HTML), #adds locations to each label when hovered over the icon
-                                      popup = ~as.character(data_input()$Value)) #displays pop-up of value of crimes in that area when icon pressed
-                                  )
+                          data_input_ordered <- reactive({
+                            data_input()[order(match(data_input()$Location, all_location_2003_2019$Value)),]
+                          })
+                          
+                          
+                          labels <- reactive({ #reactive function changes labels as slider changes year
+                            paste("<p>", data_input_ordered()$Location, "</p>", #location word stored in paragraph tag
+                                  sep = ""
+                              )
+                          })
+                          
+                          output$map <- renderLeaflet(
+                            leaflet()%>%addTiles()%>%addAwesomeMarkers(
+                              data = all_location_2003_2019, #locations data frame used
+                              lat = ~Latitude, #latitude coordinate taken from Latitude column in data frame
+                              lng = ~Longitude, #longitude coordinate taken from Longitude column in data frame
+                              icon = allIconsStyle, #sets the icon style
+                              label =  lapply(labels(), HTML), #adds locations to each label when hovered over the icon
+                              popup = ~as.character(data_input()$Value)) #displays pop-up of value of crimes in that area when icon pressed
+                          )
 
-                                  output$summary_table <- renderDataTable(data_input()) #outputs summary table containing data below map on dashboard
-                                  }
+                          output$summary_table <- renderDataTable(data_input()) #outputs summary table containing data below map on dashboard
+                          }
 
-                          shinyApp(ui = ui, server = server) #runs the shiny app, showing the dashboard & map
+                  shinyApp(ui = ui, server = server) #runs the shiny app, showing the dashboard & map
 
+                          
                           
 #-------------------------------------------------------------------------------
 
@@ -362,35 +365,74 @@ datatable(totalSouthValue)
                        names(totalSouthValue)[1] <- "Garda_Station"
                        names(totalSouthValue)[2] <- "Value"
                        
-                       northLabels <- c("Bridewell","Fitzgibbon", "Mountjoy", "Store St", "Balbriggan", "Garristown", "Lusk", "Skerries", "Ballymun", "Dublin Airport", "Santry", "Coolock", "Malahide", "Swords", "Clontarf", "Howth", "Raheny", "Blanchardstown", "Cabra", "Finglas")
-                       barplot(totalNorthValue$Value,
-                               ylab = "Values",
-                               main = "North Dublin Total Crimes 2003-2019", 
-                               names.arg = northLabels,
-                               las = 2, 
-                               cex.lab = 1,
-                               cex.axis = 0.5, 
-                               cex.names = 0.6, 
-                               font.axis = 2,
-                               space=c(0),
-                               col = c("#3CD0D6")
-                             )
-                      
+                       
+                       #barplot North locations - all time crime
+                       northLabels <- c("Bridewell","Fitzgibbon", "Mountjoy", 
+                                        "Store St", "Balbriggan", "Garristown", 
+                                        "Lusk", "Skerries", "Ballymun", 
+                                        "Dublin Airport", "Santry", "Coolock", 
+                                        "Malahide", "Swords", "Clontarf", 
+                                        "Howth", "Raheny", "Blanchardstown", "Cabra", "Finglas")
+                    #barplot
+                       ggplot(totalNorthValue, aes(x = northLabels, y = Value))+
+                         geom_bar(stat="identity", fill = "#CC8899", color = "black") +
+                         labs( title = "Total Value of Crime 2003-2019 - North Dublin"
+                         )+
+                         scale_y_continuous(breaks=seq(0,160000,20000))+
+                         theme_fivethirtyeight() +
+                         theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
+                       
+                       
+                       #barplot South locations - all time crime
+                       southLabels <- c("Donnybrook","Irishtown", "Pearse St", 
+                                        "Kevin St", "Kilmainham", "Crumlin", 
+                                        "Sundrive Road", "Rathfarnham", "Tallaght", 
+                                        "Rathmines", "Terenure", "Blackrock", "Dundrum", 
+                                        "Cabinteely", "Dun Laoighre", "Ballyfermot", 
+                                        "Clondalkin", "Rathcoole", "Lucan", "Ronanstown")
+                       
+                       ggplot(totalSouthValue, aes(x = southLabels, y = Value))+
+                         geom_bar(stat="identity", fill = "#228B22", color = "black") +
+                         labs( title = "Total Value of Crime 2003-2019 - South Dublin"
+                         )+
+                         scale_y_continuous(breaks=seq(0,180000,20000))+
+                         theme_fivethirtyeight() +
+                         theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
                        
                        
                        
-                      #barplot 5 year top 5 north vs south
-                       #finglas, blanch, store st, bridewell, coolock
-                       #tallaght, dundrum, dun laoighre, pearse st, kevin st
-                       top5 <- c("Finglas/Tallaght","Blanch/Dundrum","Store St/Pearse St","Bridewell/Kevin St", "Coolock/Dun Laoighre")
-                       top5North <- data.frame(50622,95535,157464,103752,50225)
-                       top5South <- data.frame(101189,49157,171741,55677,45383)
-
-                       
-                       #write.xlsx(northDublin, file, sheetName = "Sheet1", col.names = TRUE, row.names = TRUE, append = FALSE)
-
                        
                        
+                       
+         #top 5 areas North & South
+         #finglas, blanch, store st, bridewell, coolock
+         #tallaght, dundrum, dun laoighre, pearse st, kevin st
+         top5 <- c("Finglas","Tallaght","Blanch","Dundrum","Store St","Pearse St","Bridewell","Kevin St", "Coolock","Dun Laoighre")
+         top5Area <- c("North", "South","North", "South","North", "South","North", "South","North", "South")
+         top5North <- data.frame(50622,95535,157464,103752,50225)
+         top5South <- data.frame(101189,49157,171741,55677,45383)
+         top5All <- c(50622,101189,95535,49157,157464,171741,103752,55677,50225,45383)
+         
+         #creating dataframe
+         top5All <- data.frame(top5, top5All, top5Area)
+                names(top5All)[1] <- "Location"
+                names(top5All)[2] <- "Crimes"
+                names(top5All)[3] <- "Area"
+                    
+      #bar plot of north & south values
+      ggplot(top5All, aes(x = Location, y = Crimes, fill = Area))+
+      geom_bar(stat="identity") +
+        labs( title = "Total Value of Crime (ALL TIME) - Top 5 Areas North & South"
+        )+
+      scale_x_discrete(limits = top5) + #orders based on top5 variable
+      scale_y_continuous(breaks=seq(0,180000,20000))+
+        theme_fivethirtyeight() +
+        theme(axis.title = element_text())
+        
+                       
+      
+      
+      
                        #average crimes by year 2009-2019 -  FOR EDUCATION COMPARISON
                        ggplot(avgCrimesByYear, aes(x = factor(Year), y = Value)) +
                          geom_point(size = 5) +
