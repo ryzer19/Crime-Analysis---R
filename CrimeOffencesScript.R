@@ -1,18 +1,23 @@
 install.packages("rvest")
 install.packages("dplyr")
 install.packages("plyr")
+install.packages("funModeling")
+install.packages("Hmisc")
 install.packages("tidyverse")
 install.packages("leaflet")
 install.packages("writexl")
 install.packages("ggplot2")
 install.packages("scales")
 install.packages("flextable")
+install.packages("cluster")
 
 
 library(tidyverse)
 library(rvest)
 library(dplyr)
 library(plyr)
+library(funModeling)
+library(Hmisc)
 library(leaflet)
 library(writexl)
 library(ggplot2)
@@ -26,14 +31,27 @@ library(data.table)
 library(DT)
 library(flextable)
 library(ggpubr)
+library(factoextra)
+library(cluster)
+library(mclust)
+
 
 
 #loading datasets
 crimeOffences <- read.csv(file = '/Users/ryanjohnston/development/r/crime/Datasets/RecordedCrimeOffences.csv')
 locations <- read.csv(file = '/Users/ryanjohnston/development/r/crime/Datasets/Locations.csv')
 
+
+
+#Exploratory Data Analysis
+  glimpse(crimeOffences)
+  status(crimeOffences)
+
+
+  
     #datatable of locations
     datatable(locations)
+    
     
 #changing column names
 names(crimeOffences)[3] <- "Garda_Station"
@@ -373,7 +391,8 @@ datatable(totalSouthValue)
                                         "Dublin Airport", "Santry", "Coolock", 
                                         "Malahide", "Swords", "Clontarf", 
                                         "Howth", "Raheny", "Blanchardstown", "Cabra", "Finglas")
-                    #barplot
+                       
+                    #barplot North locations
                        ggplot(totalNorthValue, aes(x = northLabels, y = Value))+
                          geom_bar(stat="identity", fill = "#CC8899", color = "black") +
                          labs( title = "Total Value of Crime 2003-2019 - North Dublin"
@@ -434,11 +453,14 @@ datatable(totalSouthValue)
       
       
                        #average crimes by year 2009-2019 -  FOR EDUCATION COMPARISON
-                       ggplot(avgCrimesByYear, aes(x = factor(Year), y = Value)) +
-                         geom_point(size = 5) +
+                                #removing rows 2003-2008(education data only starts at 2009)
+                                avgCrimesByYear_from2009 <- avgCrimesByYear[-c(1:5),]
+                        #plots avg crimes by year 2009-2019
+                       ggplot(avgCrimesByYear_from2009, aes(x = factor(Year), y = Value, label=Value)) +
+                         geom_point(size = 10, color = 2) +
                          labs( title = "Average Crimes by Year",
-                               x = "Crimes",  
-                               y = "Year"
+                               x = "Year",  
+                               y = "Crimes"
                          )+
                          theme_fivethirtyeight() +
                          theme(axis.title = element_text())
@@ -459,6 +481,7 @@ datatable(totalSouthValue)
                                                   "Offences against government, justice procedures and organisation of crime",
                                                   "Burglary and related offences"))
                 
+                datatable(top5_crimeType)
                 write.csv(top5_crimeType, "/Users/ryanjohnston/development/r/crime/Datasets/top5_crimeType.csv", row.names = FALSE)
                 
                 #line & plot graph showing top 5 crimes & values by year
@@ -522,7 +545,3 @@ datatable(totalSouthValue)
           shapiro.test(crimeOffences_northDublin_reformatted$Crime.6)
           shapiro.test(crimeOffences_northDublin_reformatted$Crime.10)
                   #p value < 0.05 in all columns showing the data is NOT-NORMAL
-          
-          #nonparametric tests
-          
-          

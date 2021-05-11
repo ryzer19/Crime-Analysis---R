@@ -17,6 +17,13 @@ library(data.table)
 incomeAndPovertyRates <- read.csv(file = '/Users/ryanjohnston/development/r/crime/Datasets/Income&PovertyRates.csv')
 
 
+
+#Exploratory Data Analysis
+glimpse(incomeAndPovertyRates)
+status(incomeAndPovertyRates)
+
+
+
 #changing dataframe column names
 names(incomeAndPovertyRates)[1] <- "Statistic"
 names(incomeAndPovertyRates)[3] <- "Age_Range"
@@ -39,7 +46,6 @@ names(incomeDFfiltered)[3] <- "Value"
 
 #removes age group to have only values for clustering
 incomeDFforCluster = subset(incomeDFfiltered, select = -Age_Group)
-incomeDFforCluster <- mean()
 
     #avg income by year - all ages(no age group)
         #remove age group 0-17 as it contains NA's
@@ -106,7 +112,7 @@ kmeans.ani(avgIncome_cluster[1:2], 2)
 
 #creates 3 clusters from data
 km.clus <- kmeans(avgIncome_cluster, 3) #creates cluster with 3 clusters(groups)
-fviz_cluster(km.clus, avgIncome_cluster, main="Average Income Cluster")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
+fviz_cluster(km.clus, avgIncome_cluster, main="Average Household Disposable Income Cluster")+theme_fivethirtyeight() #outputs visualisation of 3 clusters
 
 #clustering
 income_cluster1 <- Mclust(avgIncome_cluster)
@@ -117,21 +123,21 @@ summary(income_cluster1)
           #AGE GROUP INCOME BY YEAR
           ggplot(incomeDFfiltered, aes(x = Year, y = Value, color = Age_Group)) +
             geom_line(size=1) + geom_point(size=2) +
-            labs(title = "Age Group Income",
+            labs(title = "Age Group Mean Household Disposable Income",
               subtitle = "       by Year",
               xlab = "Year",
               ylab = "Income",
               color = "Age"
             ) +
-            xlim (2004, 2020) +
-            ylim (20000, 60000) +
+            scale_x_continuous(breaks=seq(2004, 2020,2))+
+            scale_y_continuous(breaks=seq(20000, 60000,5000))+
             theme_fivethirtyeight() +
             theme(axis.title = element_text())
           
           #average income plot
           ggplot(avgIncome, aes(x = Year, y = Value)) +
-            geom_line(size=0.5, color=1)+ geom_point(size=2.5,color=4)+
-            labs( title = "Average income by Year",
+            geom_line(size=2, color=4)+ geom_point(size=5,color=1)+
+            labs( title = "Average Household Disposable Income by Year",
                   x = "Year",  
                   y = "Income"
             )+
@@ -143,10 +149,10 @@ summary(income_cluster1)
           #AVG CRIMES, AVG INCOME, YEAR
          incomeCrimePlot <- ggplot(avgCrimesWithIncome, aes(x = Year, y = IncomeValue, color = CrimeValue)) +
             geom_line(size=1.5, color=1) + geom_point(size = 10)+
-            labs( title = "Average Income by Year",
+            labs( title = "Average Household Disposable Income by Year",
                   subtitle = "        with Average Crimes",
               x = "Year",  
-              y = "Crimes"
+              y = "Income"
             )+
             scale_x_continuous(breaks=seq(2004, 2020,2))+
             scale_y_continuous(breaks=seq(35000, 50000,2500))+
