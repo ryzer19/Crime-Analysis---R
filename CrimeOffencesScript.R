@@ -509,6 +509,12 @@ datatable(totalSouthValue)
      summary(halfmodel_northDublin_incomeAndCrime) #R^2 = 30% data can only be explained by model
      plot(halfmodel_northDublin_incomeAndCrime)
      
+     #Using Akaike Information Critereon to find better model - the lower the AIC the better the model
+     AIC(fullmodel_northDublin_incomeAndCrime) #AIC = 5883.013 #better model - less prediction error
+     AIC(halfmodel_northDublin_incomeAndCrime) #AIC = 5895.166
+     
+     
+     
      
   #flextable of models
     #fulltable
